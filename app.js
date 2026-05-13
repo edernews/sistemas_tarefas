@@ -30,13 +30,21 @@ async function init() {
     setupEventListeners();
 }
 
-// Logout
-if (btnLogout) {
-    btnLogout.addEventListener('click', async () => {
-        await supabaseClient.auth.signOut();
-        window.location.href = 'login.html';
-    });
-}
+// Logout Logic (Robust delegation)
+document.addEventListener('click', async (e) => {
+    if (e.target.closest('.btn-exit')) {
+        e.preventDefault();
+        try {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) throw error;
+            window.location.href = 'login.html';
+        } catch (err) {
+            console.error('Erro ao sair:', err.message);
+            // Fallback: force redirect even if signOut fails
+            window.location.href = 'login.html';
+        }
+    }
+});
 
 // Fetch Tasks from Supabase
 async function fetchTasks() {

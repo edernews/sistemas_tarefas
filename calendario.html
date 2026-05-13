@@ -218,10 +218,13 @@
                 renderCalendar();
             });
 
-            // Logout logic
-            document.querySelector('.btn-exit').addEventListener('click', async () => {
-                await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
+            // Logout Logic (Robust delegation)
+            document.addEventListener('click', async (e) => {
+                if (e.target.closest('.btn-exit')) {
+                    e.preventDefault();
+                    await supabaseClient.auth.signOut();
+                    window.location.href = 'login.html';
+                }
             });
 
             lucide.createIcons();
