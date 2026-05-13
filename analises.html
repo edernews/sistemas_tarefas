@@ -159,13 +159,27 @@
         const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
         let tasks = [];
+        let currentUser = null;
 
         async function initAnalytics() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+            
             await fetchTasks();
             updateStats();
             renderCategoryDist();
             renderPriorityDist();
             lucide.createIcons();
+            
+            // Logout logic
+            document.querySelector('.btn-exit').addEventListener('click', async () => {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            });
         }
 
         async function fetchTasks() {

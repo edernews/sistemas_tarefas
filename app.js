@@ -4,6 +4,7 @@ const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABAS
 // State management
 let tasks = [];
 let currentFilter = 'Todas';
+let currentUser = null;
 
 // DOM Elements
 const taskForm = document.getElementById('task-form');
@@ -12,11 +13,28 @@ const visibleTasksCount = document.getElementById('visible-tasks-count');
 const progressPercentage = document.getElementById('progress-percentage');
 const progressFill = document.getElementById('progress-fill');
 const filterBtns = document.querySelectorAll('.filter-btn');
+const btnLogout = document.querySelector('.btn-exit');
 
 // Initialize
 async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    currentUser = session.user;
     await fetchTasks();
     setupEventListeners();
+}
+
+// Logout
+if (btnLogout) {
+    btnLogout.addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'login.html';
+    });
 }
 
 // Fetch Tasks from Supabase
