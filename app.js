@@ -25,6 +25,7 @@ async function init() {
     }
 
     currentUser = session.user;
+    document.getElementById('user-display-name').textContent = currentUser.email;
     await fetchTasks();
     setupEventListeners();
 }

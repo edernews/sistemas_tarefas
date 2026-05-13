@@ -102,9 +102,15 @@
                     <li><a href="analises.html" class="active"><i data-lucide="bar-chart-2"></i> Análises</a></li>
                     <li><a href="calendario.html"><i data-lucide="calendar"></i> Calendário</a></li>
                 </ul>
-                <button class="btn-exit">
-                    <i data-lucide="log-out"></i> Sair
-                </button>
+                <div style="display: flex; align-items: center;">
+                    <div class="user-profile">
+                        <i data-lucide="user"></i>
+                        <span id="user-display-name">Carregando...</span>
+                    </div>
+                    <button class="btn-exit">
+                        <i data-lucide="log-out"></i> Sair
+                    </button>
+                </div>
             </div>
         </nav>
 
@@ -168,6 +174,7 @@
                 return;
             }
             currentUser = session.user;
+            document.getElementById('user-display-name').textContent = currentUser.email;
             
             await fetchTasks();
             updateStats();

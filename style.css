@@ -127,6 +127,24 @@ body::before {
     border-color: var(--danger);
 }
 
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.user-profile i {
+    width: 16px;
+    height: 16px;
+}
+
 /* Main Content */
 .main-content {
     max-width: 800px;
