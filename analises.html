@@ -98,7 +98,7 @@
                     <span>Eder News Task</span>
                 </div>
                 <ul class="nav-links">
-                    <li><a href="index.html"><i data-lucide="list-todo"></i> Tarefas</a></li>
+                    <li><a href="tasks.html"><i data-lucide="list-todo"></i> Tarefas</a></li>
                     <li><a href="analises.html" class="active"><i data-lucide="bar-chart-2"></i> Análises</a></li>
                     <li><a href="calendario.html"><i data-lucide="calendar"></i> Calendário</a></li>
                 </ul>
@@ -170,7 +170,7 @@
         async function initAnalytics() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
                 return;
             }
             currentUser = session.user;
@@ -187,7 +187,7 @@
                 if (e.target.closest('.btn-exit')) {
                     e.preventDefault();
                     await supabaseClient.auth.signOut();
-                    window.location.href = 'login.html';
+                    window.location.href = 'index.html';
                 }
             });
         }

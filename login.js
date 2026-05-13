@@ -13,7 +13,7 @@ let isLogin = true;
 async function checkUser() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
-        window.location.href = 'index.html';
+        window.location.href = 'tasks.html';
     }
 }
 
@@ -62,7 +62,7 @@ authForm.addEventListener('submit', async (e) => {
             return;
         }
         
-        window.location.href = 'index.html';
+        window.location.href = 'tasks.html';
     } catch (error) {
         errorMessage.textContent = error.message;
         errorMessage.style.display = 'block';

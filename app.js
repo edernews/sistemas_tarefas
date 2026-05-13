@@ -20,7 +20,7 @@ async function init() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     
     if (!session) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -37,11 +37,11 @@ document.addEventListener('click', async (e) => {
         try {
             const { error } = await supabaseClient.auth.signOut();
             if (error) throw error;
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         } catch (err) {
             console.error('Erro ao sair:', err.message);
             // Fallback: force redirect even if signOut fails
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         }
     }
 });

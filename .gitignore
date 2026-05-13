@@ -1,5 +1,5 @@
-# Supabase Config (Sensitive)
-config.js
+# Supabase Config (Removido do ignore para deploy estático)
+# config.js
 
 # Dependencies
 node_modules/
