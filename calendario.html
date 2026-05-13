@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário | Eder News Task</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .calendar-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .calendar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .month-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        .btn-nav {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-nav:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .day-name {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding-bottom: 0.5rem;
+        }
+        .calendar-day {
+            aspect-ratio: 1 / 1;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover {
+            background: white;
+            border-color: var(--primary);
+        }
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
+        }
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+            background: var(--primary-light);
+        }
+        .day-number {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .task-dots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            justify-content: center;
+        }
+        .task-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        .task-list-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            width: 200px;
+            display: none;
+            z-index: 10;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+        .calendar-day:hover .task-list-popup {
+            display: block;
+        }
+        .task-popup-item {
+            margin-bottom: 0.25rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .task-popup-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="logo">
+                    <i data-lucide="check-square" class="logo-icon"></i>
+                    <span>Eder News Task</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html"><i data-lucide="list-todo"></i> Tarefas</a></li>
+                    <li><a href="analises.html"><i data-lucide="bar-chart-2"></i> Análises</a></li>
+                    <li><a href="calendario.html" class="active"><i data-lucide="calendar"></i> Calendário</a></li>
+                </ul>
+                <button class="btn-exit">
+                    <i data-lucide="log-out"></i> Sair
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content" style="max-width: 1000px;">
+            <header class="page-header">
+                <div class="header-info">
+                    <h1>Calendário</h1>
+                    <p>Acompanhamento mensal de tarefas</p>
+                </div>
+            </header>
+
+            <section class="calendar-card">
+                <div class="calendar-header">
+                    <h2 id="month-year">Maio 2026</h2>
+                    <div class="month-nav">
+                        <button class="btn-nav" id="prev-month"><i data-lucide="chevron-left"></i></button>
+                        <button class="btn-nav" id="next-month"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendar-grid">
+                    <div class="day-name">Dom</div>
+                    <div class="day-name">Seg</div>
+                    <div class="day-name">Ter</div>
+                    <div class="day-name">Qua</div>
+                    <div class="day-name">Qui</div>
+                    <div class="day-name">Sex</div>
+                    <div class="day-name">Sáb</div>
+                    <!-- Days will be injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        let tasks = [];
+        let currentDate = new Date();
+
+        async function initCalendar() {
+            await fetchTasks();
+            renderCalendar();
+            document.getElementById('prev-month').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            document.getElementById('next-month').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+            lucide.createIcons();
+        }
+
+        async function fetchTasks() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('tasks')
+                    .select('*');
+                if (error) throw error;
+                tasks = data;
+            } catch (err) {
+                console.error('Erro ao buscar:', err.message);
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const monthYear = document.getElementById('month-year');
+            
+            const dayNames = grid.querySelectorAll('.day-name');
+            grid.innerHTML = '';
+            dayNames.forEach(dn => grid.appendChild(dn));
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            monthYear.textContent = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(currentDate);
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                // Compare with due_date (ignoring possible time parts if any)
+                const dayTasks = tasks.filter(t => t.due_date && t.due_date.startsWith(dateStr));
+                
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                
+                const today = new Date();
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayEl.classList.add('today');
+                }
+
+                dayEl.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    <div class="task-dots">
+                        ${dayTasks.map(t => `<div class="task-dot" style="background: ${getCatColor(t.category)}"></div>`).join('')}
+                    </div>
+                    ${dayTasks.length > 0 ? `
+                        <div class="task-list-popup">
+                            <div style="font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px;">
+                                <i data-lucide="list" style="width: 10px; height: 10px;"></i> Tarefas
+                            </div>
+                            ${dayTasks.map(t => `<div class="task-popup-item">${t.completed ? '✅' : '⏳'} ${t.title}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                `;
+                
+                grid.appendChild(dayEl);
+            }
+            
+            lucide.createIcons();
+        }
+
+        function getCatColor(cat) {
+            const colors = { 'Pessoal': '#006437', 'Trabalho': '#04542c', 'Estudos': '#10B981' };
+            return colors[cat] || '#64748B';
+        }
+
+        initCalendar();
+    </script>
+</body>
+</html>

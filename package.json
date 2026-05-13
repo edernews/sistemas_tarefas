@@ -1,0 +1,17 @@
+{
+  "name": "eder-news-taskmaster",
+  "version": "1.0.0",
+  "description": "Sistema de tarefas moderno integrado ao Supabase",
+  "main": "app.js",
+  "scripts": {
+    "start": "echo \"Abra o index.html no seu navegador.\""
+  },
+  "keywords": [
+    "todo",
+    "supabase",
+    "palmeiras",
+    "frontend"
+  ],
+  "author": "Eder News",
+  "license": "MIT"
+}

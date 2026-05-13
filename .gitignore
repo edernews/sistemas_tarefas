@@ -1,0 +1,18 @@
+# Supabase Config (Sensitive)
+config.js
+
+# Dependencies
+node_modules/
+
+# Agent/Environment Files
+.agents/
+.gemini/
+antigravity/
+brain/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

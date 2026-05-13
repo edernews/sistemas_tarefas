@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análises | TaskMaster</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .chart-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .chart-card h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .category-bar-container {
+            flex: 1;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+        .category-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 6px;
+        }
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="logo">
+                    <i data-lucide="check-square" class="logo-icon"></i>
+                    <span>Eder News Task</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html"><i data-lucide="list-todo"></i> Tarefas</a></li>
+                    <li><a href="analises.html" class="active"><i data-lucide="bar-chart-2"></i> Análises</a></li>
+                    <li><a href="calendario.html"><i data-lucide="calendar"></i> Calendário</a></li>
+                </ul>
+                <button class="btn-exit">
+                    <i data-lucide="log-out"></i> Sair
+                </button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="page-header">
+                <div class="header-info">
+                    <h1>Desempenho</h1>
+                    <p>Visão geral da sua produtividade</p>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <i data-lucide="layers" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <div class="stat-label">Total Criadas</div>
+                    <div id="total-tasks" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <i data-lucide="check-circle" style="color: var(--success); margin-bottom: 1rem;"></i>
+                    <div class="stat-label">Concluídas</div>
+                    <div id="completed-tasks" class="stat-value" style="color: var(--success);">0</div>
+                </div>
+                <div class="stat-card">
+                    <i data-lucide="clock" style="color: var(--warning); margin-bottom: 1rem;"></i>
+                    <div class="stat-label">Pendentes</div>
+                    <div id="pending-tasks" class="stat-value" style="color: var(--warning);">0</div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-card">
+                    <h3><i data-lucide="pie-chart"></i> Por Categoria</h3>
+                    <div id="category-distribution">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3><i data-lucide="trending-up"></i> Por Prioridade</h3>
+                    <div id="priority-distribution">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        let tasks = [];
+
+        async function initAnalytics() {
+            await fetchTasks();
+            updateStats();
+            renderCategoryDist();
+            renderPriorityDist();
+            lucide.createIcons();
+        }
+
+        async function fetchTasks() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('tasks')
+                    .select('*');
+                if (error) throw error;
+                tasks = data;
+            } catch (err) {
+                console.error('Erro ao buscar:', err.message);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('total-tasks').textContent = tasks.length;
+            document.getElementById('completed-tasks').textContent = tasks.filter(t => t.completed).length;
+            document.getElementById('pending-tasks').textContent = tasks.filter(t => !t.completed).length;
+        }
+
+        function renderCategoryDist() {
+            const container = document.getElementById('category-distribution');
+            const categories = [
+                { name: 'Pessoal', icon: 'user' },
+                { name: 'Trabalho', icon: 'briefcase' },
+                { name: 'Estudos', icon: 'book' }
+            ];
+            
+            container.innerHTML = categories.map(cat => {
+                const count = tasks.filter(t => t.category === cat.name).length;
+                const percentage = tasks.length > 0 ? (count / tasks.length) * 100 : 0;
+                return `
+                    <div class="category-item">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; width: 100px;">
+                            <i data-lucide="${cat.icon}" style="width: 14px; height: 14px;"></i>
+                            <span>${cat.name}</span>
+                        </div>
+                        <div class="category-bar-container">
+                            <div class="category-bar" style="width: ${percentage}%; background: ${getCatColor(cat.name)}"></div>
+                        </div>
+                        <span style="width: 30px; text-align: right; font-weight: 600;">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPriorityDist() {
+            const container = document.getElementById('priority-distribution');
+            const priorities = [
+                { name: 'Alta', icon: 'zap' },
+                { name: 'Média', icon: 'info' },
+                { name: 'Baixa', icon: 'chevron-down' }
+            ];
+            
+            container.innerHTML = priorities.map(prio => {
+                const count = tasks.filter(t => t.priority === prio.name).length;
+                const percentage = tasks.length > 0 ? (count / tasks.length) * 100 : 0;
+                return `
+                    <div class="category-item">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; width: 100px;">
+                            <i data-lucide="${prio.icon}" style="width: 14px; height: 14px;"></i>
+                            <span>${prio.name}</span>
+                        </div>
+                        <div class="category-bar-container">
+                            <div class="category-bar" style="width: ${percentage}%; background: ${getPrioColor(prio.name)}"></div>
+                        </div>
+                        <span style="width: 30px; text-align: right; font-weight: 600;">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCatColor(cat) {
+            const colors = { 'Pessoal': '#006437', 'Trabalho': '#04542c', 'Estudos': '#10B981' };
+            return colors[cat] || '#64748B';
+        }
+
+        function getPrioColor(prio) {
+            const colors = { 'Alta': '#EF4444', 'Média': '#F59E0B', 'Baixa': '#10B981' };
+            return colors[prio] || '#64748B';
+        }
+
+        initAnalytics();
+    </script>
+</body>
+</html>
